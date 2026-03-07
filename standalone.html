@@ -108,8 +108,11 @@
 
     .layer-icon { font-size: 15px; width: 18px; text-align: center; flex-shrink: 0; }
     .layer-text { flex: 1; min-width: 0; }
-    .layer-label { font-size: 13px; font-weight: 500; color: var(--txt); }
+    .layer-label { font-size: 13px; font-weight: 500; color: var(--txt); display: flex; align-items: center; gap: 6px; }
     .layer-desc { font-size: 11px; color: var(--txt3); margin-top: 1px; line-height: 1.3; }
+    .src-tag { font-size: 9px; font-weight: 700; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 999px; flex-shrink: 0; }
+    .src-tag.local { background: #1a3a1a; color: #55cc55; }
+    .src-tag.api   { background: #1a2a3a; color: #5599ff; }
     .layer-badge { font-size: 10px; margin-top: 2px; }
     .badge-loading { color: var(--accent); }
     .badge-error { color: var(--red); }
@@ -348,21 +351,21 @@ const CINCINNATI = [39.103, -84.512]
 const BBOX = '38.88,-84.85,39.35,-84.10'
 
 const LAYERS_CONFIG = [
-  { id: 'crime',       label: 'Crime Heatmap',       icon: '🚨', color: '#ff4d4d', desc: 'Crime incident density — Cincinnati PD open data', defaultOn: true },
-  { id: 'flood',       label: 'FEMA Flood Zones',    icon: '🌊', color: '#4488ff', desc: '100-year flood risk zones (FEMA NFHL)', defaultOn: false },
-  { id: 'schools',     label: 'Schools',             icon: '🏫', color: '#44bb44', desc: 'Public & private K-12 schools', defaultOn: false },
-  { id: 'hospitals',   label: 'Hospitals & Medical', icon: '🏥', color: '#ff3333', desc: 'Hospitals, clinics, urgent care', defaultOn: false },
-  { id: 'grocery',     label: 'Grocery Stores',      icon: '🛒', color: '#ff8c00', desc: 'Supermarkets and grocery stores', defaultOn: false },
-  { id: 'parks',       label: 'Parks & Green Space', icon: '🌳', color: '#22aa22', desc: 'Parks, nature areas, recreation', defaultOn: false },
-  { id: 'transit',     label: 'Transit Stops',       icon: '🚌', color: '#9944dd', desc: 'Bus stops (SORTA / TANK)', defaultOn: false },
-  { id: 'fire',        label: 'Fire Stations',       icon: '🚒', color: '#cc3300', desc: 'Fire stations — response time proxy', defaultOn: false },
-  { id: 'restaurants', label: 'Restaurants & Dining',icon: '🍽️', color: '#e05c00', desc: 'Restaurants, cafes, bars', defaultOn: false },
-  { id: 'neighborhoods',    label: 'Neighborhoods',        icon: '🏘️', color: '#aa44ff', desc: 'Boundary polygons with crime, school & park counts', defaultOn: false },
-  { id: 'income',           label: 'Income & Home Value',  icon: '💰', color: '#44ddaa', desc: 'Median household income & home value by census tract (ACS 2023)', defaultOn: false },
-  { id: 'zoning',           label: 'Zoning',               icon: '🗺️', color: '#ffaa00', desc: 'Hamilton County zoning classifications', defaultOn: false },
-  { id: 'school-districts', label: 'School Districts',     icon: '🎓', color: '#2288ff', desc: 'Public school district boundaries', defaultOn: false },
-  { id: 'police-districts', label: 'Police Districts',     icon: '🚔', color: '#4466cc', desc: 'Cincinnati Police District boundaries', defaultOn: false },
-  { id: 'historic',         label: 'Historic Districts',   icon: '🏛️', color: '#cc9933', desc: 'Cincinnati historic districts & local landmarks', defaultOn: false },
+  { id: 'crime',       label: 'Crime Heatmap',       icon: '🚨', color: '#ff4d4d', desc: 'Crime incident density — Cincinnati PD open data', defaultOn: true,  local: false },
+  { id: 'flood',       label: 'FEMA Flood Zones',    icon: '🌊', color: '#4488ff', desc: '100-year flood risk zones (FEMA NFHL)',             defaultOn: false, local: true  },
+  { id: 'schools',     label: 'Schools',             icon: '🏫', color: '#44bb44', desc: 'Public & private K-12 schools',                    defaultOn: false, local: false },
+  { id: 'hospitals',   label: 'Hospitals & Medical', icon: '🏥', color: '#ff3333', desc: 'Hospitals, clinics, urgent care',                   defaultOn: false, local: false },
+  { id: 'grocery',     label: 'Grocery Stores',      icon: '🛒', color: '#ff8c00', desc: 'Supermarkets and grocery stores',                   defaultOn: false, local: false },
+  { id: 'parks',       label: 'Parks & Green Space', icon: '🌳', color: '#22aa22', desc: 'Parks, nature areas, recreation',                   defaultOn: false, local: false },
+  { id: 'transit',     label: 'Transit Stops',       icon: '🚌', color: '#9944dd', desc: 'Bus stops (SORTA / TANK)',                          defaultOn: false, local: false },
+  { id: 'fire',        label: 'Fire Stations',       icon: '🚒', color: '#cc3300', desc: 'Fire stations — response time proxy',               defaultOn: false, local: false },
+  { id: 'restaurants', label: 'Restaurants & Dining',icon: '🍽️', color: '#e05c00', desc: 'Restaurants, cafes, bars',                         defaultOn: false, local: false },
+  { id: 'neighborhoods',    label: 'Neighborhoods',       icon: '🏘️', color: '#aa44ff', desc: 'Boundary polygons with crime, school & park counts',                    defaultOn: false, local: false },
+  { id: 'income',           label: 'Income & Home Value', icon: '💰', color: '#44ddaa', desc: 'Median household income & home value by census tract (ACS 2023)',       defaultOn: false, local: false },
+  { id: 'zoning',           label: 'Zoning',              icon: '🗺️', color: '#ffaa00', desc: 'Hamilton County zoning classifications',                                defaultOn: false, local: true  },
+  { id: 'school-districts', label: 'School Districts',    icon: '🎓', color: '#2288ff', desc: 'Public school district boundaries',                                     defaultOn: false, local: true  },
+  { id: 'police-districts', label: 'Police Districts',    icon: '🚔', color: '#4466cc', desc: 'Cincinnati Police District boundaries',                                 defaultOn: false, local: true  },
+  { id: 'historic',         label: 'Historic Districts',  icon: '🏛️', color: '#cc9933', desc: 'Cincinnati historic districts & local landmarks',                      defaultOn: false, local: true  },
 ]
 
 const POI_ICONS = {
@@ -1103,7 +1106,7 @@ function renderLayerList() {
       <div class="toggle${state.active[layer.id] ? ' on' : ''}" id="toggle-${layer.id}"></div>
       <div class="layer-icon">${layer.icon}</div>
       <div class="layer-text">
-        <div class="layer-label">${layer.label}</div>
+        <div class="layer-label">${layer.label}<span class="src-tag ${layer.local ? 'local' : 'api'}">${layer.local ? 'LOCAL' : 'API'}</span></div>
         <div class="layer-desc">${layer.desc}</div>
         <div class="layer-badge" id="badge-${layer.id}"></div>
       </div>

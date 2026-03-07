@@ -4,16 +4,32 @@ An interactive map for exploring neighborhoods in the Cincinnati and Northern Ke
 
 ## Features
 
-- **Crime heatmap** — 5,000 most recent Cincinnati PD incidents (live)
-- **FEMA flood zones** — 100-year flood risk polygons (local)
-- **Income & home value** — Census ACS 2023 median household income and home value by tract (live)
-- **Zoning** — Hamilton County zoning classifications (local)
-- **School districts** — Public school district boundaries (local)
-- **Police districts** — Cincinnati Police District boundaries (local)
-- **Historic districts** — Cincinnati historic districts and landmarks (local)
-- **POI layers** — Schools, hospitals, grocery, parks, transit, fire stations, restaurants (OpenStreetMap)
-- **Neighborhood boundaries** — 53 Cincinnati + 54 NKY city boundaries
-- **Work address** — Enter a work address to see driving distance from any clicked location
+Each layer is tagged **LOCAL** or **API** in the UI. LOCAL layers load instantly from files in the repo — toggle freely. API layers make external requests and can be slow or rate-limited if several are toggled at once.
+
+| Layer | Source | Type |
+|---|---|---|
+| Crime Heatmap | Cincinnati Open Data (Socrata) | 🌐 API |
+| FEMA Flood Zones | FEMA NFHL (cached) | 💾 LOCAL |
+| Schools (POI) | OpenStreetMap / Overpass | 🌐 API |
+| Hospitals & Medical | OpenStreetMap / Overpass | 🌐 API |
+| Grocery Stores | OpenStreetMap / Overpass | 🌐 API |
+| Parks & Green Space | OpenStreetMap / Overpass | 🌐 API |
+| Transit Stops | OpenStreetMap / Overpass | 🌐 API |
+| Fire Stations | OpenStreetMap / Overpass | 🌐 API |
+| Restaurants & Dining | OpenStreetMap / Overpass | 🌐 API |
+| Neighborhoods | CAGIS + Overpass | 🌐 API |
+| Income & Home Value | US Census ACS 2023 + TIGER | 🌐 API |
+| Zoning | Hamilton County CAGIS | 💾 LOCAL |
+| School Districts | Hamilton County CAGIS | 💾 LOCAL |
+| Police Districts | Cincinnati CAGIS | 💾 LOCAL |
+| Historic Districts | Cincinnati CAGIS | 💾 LOCAL |
+
+> **Tip:** The Overpass API (OpenStreetMap) can return a 429 rate-limit error if several API layers are toggled simultaneously. The app will retry automatically, but toggle them one at a time if you're in a hurry.
+
+**Other features:**
+- **Work address** — Enter a work address to see straight-line distance from any clicked point
+- **Neighborhood boundaries** — 53 Cincinnati + 54 NKY city boundaries with crime/school/park stats
+- 3 base maps: Street, Satellite, Terrain
 
 ## Setup
 
