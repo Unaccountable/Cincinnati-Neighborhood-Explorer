@@ -1,6 +1,6 @@
 # Cincinnati / NKY House Location Assistant
 
-An interactive map for exploring neighborhoods in the Cincinnati and Northern Kentucky area. No build step required — just open `standalone.html` in a browser.
+An interactive map for exploring neighborhoods in the Cincinnati and Northern Kentucky area. Requires a local web server to run (see Setup below) — you cannot just double-click the HTML file.
 
 ## Features
 
