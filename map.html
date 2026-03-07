@@ -353,7 +353,7 @@ const BBOX = '38.88,-84.85,39.35,-84.10'
 const LAYERS_CONFIG = [
   { id: 'crime',       label: 'Crime Heatmap',       icon: '🚨', color: '#ff4d4d', desc: 'Crime incident density — Cincinnati PD open data', defaultOn: true,  local: false },
   { id: 'flood',       label: 'FEMA Flood Zones',    icon: '🌊', color: '#4488ff', desc: '100-year flood risk zones (FEMA NFHL)',             defaultOn: false, local: true  },
-  { id: 'schools',     label: 'Schools',             icon: '🏫', color: '#44bb44', desc: 'Public & private K-12 schools',                    defaultOn: false, local: false },
+  { id: 'schools',     label: 'Schools',             icon: '🏫', color: '#44bb44', desc: 'Public & private K-12 schools — Hamilton County',  defaultOn: false, local: true  },
   { id: 'hospitals',   label: 'Hospitals & Medical', icon: '🏥', color: '#ff3333', desc: 'Hospitals, clinics, urgent care',                   defaultOn: false, local: false },
   { id: 'grocery',     label: 'Grocery Stores',      icon: '🛒', color: '#ff8c00', desc: 'Supermarkets and grocery stores',                   defaultOn: false, local: false },
   { id: 'parks',       label: 'Parks & Green Space', icon: '🌳', color: '#22aa22', desc: 'Parks, nature areas, recreation',                   defaultOn: false, local: false },
@@ -1014,6 +1014,24 @@ function applyLayer(layerId) {
     return
   }
 
+  // Schools — local CAGIS GeoJSON (point features)
+  if (layerId === 'schools') {
+    if (!data || data.error || !data.features) return
+    const icon = makeDivIcon('🏫', '#2a8a2a')
+    const grp  = L.layerGroup()
+    data.features.forEach(f => {
+      const [lng, lat] = f.geometry.coordinates
+      const p = f.properties
+      const fund = p.FUND === 'Private' ? ' · Private' : ''
+      L.marker([lat, lng], { icon })
+        .bindPopup(`<div style="min-width:180px"><div style="font-size:13px;font-weight:700;margin-bottom:4px">🏫 ${p.SCHOOL}</div>${p.TYPE ? `<div style="font-size:12px;color:#8a93ab">${p.TYPE}${fund}</div>` : ''}${p.GRADE ? `<div style="font-size:11px;color:#545f78;margin-top:2px">Grades: ${p.GRADE}</div>` : ''}${p.DIST_NAME ? `<div style="font-size:11px;color:#545f78">${p.DIST_NAME}</div>` : ''}${p.ADDRESS ? `<div style="font-size:10px;color:#545f78;margin-top:4px">${p.ADDRESS}, ${p.CITY_STATE}</div>` : ''}</div>`, { maxWidth: 240 })
+        .addTo(grp)
+    })
+    state.mapLayers.schools = grp
+    grp.addTo(map)
+    return
+  }
+
   if (!data || data.error || !Array.isArray(data)) return
 
   if (layerId === 'crime') {
@@ -1054,6 +1072,7 @@ async function loadLayer(layerId) {
                 : layerId === 'neighborhoods'   ? await fetchNeighborhoods()
                 : layerId === 'income'          ? await fetchIncome()
                 : layerId === 'flood'           ? await fetch('flood-zones.geojson').then(r => r.json())
+                : layerId === 'schools'         ? await fetch('school-locations.geojson').then(r => r.json())
                 : layerId === 'zoning'          ? await fetch('zoning-countywide.geojson').then(r => r.json())
                 : layerId === 'school-districts'? await fetch('school-districts.geojson').then(r => r.json())
                 : layerId === 'police-districts'? await fetch('police-districts.geojson').then(r => r.json())

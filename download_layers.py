@@ -21,6 +21,7 @@ OUT  = os.path.dirname(os.path.abspath(__file__))
 
 # Single-request layers (small enough for one fetch)
 SMALL = [
+    (32, "school-locations"),
     (33, "school-districts"),
     (45, "police-districts"),
     (50, "historic-districts"),
