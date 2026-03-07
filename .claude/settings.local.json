@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(cmd.exe /c \"where node 2>&1\")",
+      "Bash(cmd.exe /c \"where npm 2>&1\")",
+      "Bash(powershell.exe -Command \"& { Get-Command node; Get-Command npm } 2>&1\")",
+      "Bash(powershell.exe -Command \"Get-ChildItem ''C:\\\\Program Files\\\\nodejs'' -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem ''C:\\\\Program Files \\(x86\\)\\\\nodejs'' -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem ''C:\\\\Users\\\\Bcham\\\\AppData\\\\Local\\\\Programs'' -ErrorAction SilentlyContinue | Where-Object {$_Name -like ''*node*''} | Select-Object Name\")",
+      "Bash(\"/c/Users/Bcham/AppData/Local/Autodesk/webdeploy/production/fd081b4c15f2fc37998034adb20de16163fc298f/NODEJS/node.exe\" --version)",
+      "Bash(AUTODESK_NODE=\"/c/Users/Bcham/AppData/Local/Autodesk/webdeploy/production/fd081b4c15f2fc37998034adb20de16163fc298f/NODEJS\")",
+      "Bash(\"$AUTODESK_NODE/node.exe\" \"$AUTODESK_NODE/node_modules/npm/bin/npm-cli.js\" --version)",
+      "Bash(\"$AUTODESK_NODE/npm.cmd\" --version)",
+      "Bash(powershell.exe -NoProfile -Command \"Get-ChildItem ''C:\\\\'' -Filter ''node.exe'' -Recurse -ErrorAction SilentlyContinue -Depth 5 | Select-Object -First 5 FullName\")",
+      "Bash(\"/c/Program Files/Adobe/Adobe Creative Cloud Experience/libs/node.exe\" --version)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(py --version)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:data-cagisportal.opendata.arcgis.com)",
+      "WebFetch(domain:api.census.gov)",
+      "WebFetch(domain:services.arcgis.com)",
+      "WebFetch(domain:tigerweb.geo.census.gov)",
+      "WebFetch(domain:hazards.fema.gov)",
+      "Bash(BASE=\"https://services.arcgis.com/JyZag7oO4NteHGiq/arcgis/rest/services/OpenData/FeatureServer\")",
+      "Bash(SUFFIX=\"/query?where=1%3D1&returnCountOnly=true&f=json\")",
+      "Bash(__NEW_LINE_416a87ea9c87d6b8__ for ID in 21 25 33 45 50 37)",
+      "Bash(do)",
+      "Bash(echo -n \"ID $ID: \")",
+      "Bash(curl -s \"$BASE/$ID$SUFFIX\")",
+      "Bash(done)",
+      "Bash(curl -s \"https://services.arcgis.com/JyZag7oO4NteHGiq/arcgis/rest/services/OpenData/FeatureServer/25/query?where=1%3D1&outFields=*&f=json&resultRecordCount=2\")",
+      "Bash(curl -s \"https://services.arcgis.com/JyZag7oO4NteHGiq/arcgis/rest/services/OpenData/FeatureServer/37/query?where=1%3D1&outFields=*&f=json&resultRecordCount=2\")",
+      "Bash(curl -s \"https://services.arcgis.com/JyZag7oO4NteHGiq/arcgis/rest/services/OpenData/FeatureServer/50/query?where=1%3D1&outFields=*&f=json&resultRecordCount=2\")",
+      "Bash(py C:/temp/download_layers.py)"
+    ]
+  }
+}
