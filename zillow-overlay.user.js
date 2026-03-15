@@ -269,10 +269,26 @@
       status.textContent = 'Map synced ✓'
       status.style.color = '#3dbb3d'
 
-      window.google.maps.event.addListener(gMap, 'bounds_changed', () => {
-        if (!_receivingLeafletSync) syncViewport(gMap)
-      })
-      syncViewport(gMap)
+      // rAF polling — reads Google Maps position every frame (~60fps) and
+      // forwards to Leaflet only when it actually changed. Much smoother
+      // than event-based sync which fires after movement ends.
+      let lastLat = null, lastLng = null, lastZoom = null
+      function rafSync () {
+        if (!_receivingLeafletSync) {
+          try {
+            const c   = gMap.getCenter()
+            const z   = gMap.getZoom()
+            const lat = c.lat(), lng = c.lng()
+            if (lat !== lastLat || lng !== lastLng || z !== lastZoom) {
+              lastLat = lat; lastLng = lng; lastZoom = z
+              sendToIframe({ type: 'syncViewport', lat, lng, zoom: z })
+            }
+          } catch (_) {}
+        }
+        requestAnimationFrame(rafSync)
+      }
+      requestAnimationFrame(rafSync)
+      syncViewport(gMap) // initial sync
     }
 
     // Poll: constructor intercept fires first, instanceof scan as fallback

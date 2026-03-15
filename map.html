@@ -426,16 +426,22 @@ if (window.self !== window.top) {
     }
   })
 
-  // Overlay → Zillow: user panned our map, tell parent to follow
-  map.on('moveend', () => {
-    if (_receivingSync) return
-    const c = map.getCenter()
-    window.parent.postMessage({
-      type: 'leafletMoved',
-      lat: c.lat,
-      lng: c.lng,
-      zoom: map.getZoom()   // Google Maps and Leaflet use the same zoom scale
-    }, '*')
+  // Overlay → Zillow: throttle with rAF so we don't flood the parent
+  let _rafPending = false
+  map.on('move', () => {
+    if (_receivingSync || _rafPending) return
+    _rafPending = true
+    requestAnimationFrame(() => {
+      _rafPending = false
+      if (_receivingSync) return
+      const c = map.getCenter()
+      window.parent.postMessage({
+        type: 'leafletMoved',
+        lat: c.lat,
+        lng: c.lng,
+        zoom: map.getZoom()
+      }, '*')
+    })
   })
 }
 
