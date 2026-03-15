@@ -32,6 +32,13 @@
 
     html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--txt); font-size: 14px; }
 
+    /* ─ Overlay / iframe mode ─ */
+    body.overlay-mode .header,
+    body.overlay-mode .sidebar { display: none !important; }
+    body.overlay-mode .body { height: 100vh; }
+    body.overlay-mode .map-wrap { width: 100% !important; }
+    body.overlay-mode { background: transparent; }
+
     .app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
     /* ─ Header ─ */
@@ -397,6 +404,18 @@ LAYERS_CONFIG.forEach(l => { state.active[l.id] = l.defaultOn })
 //  Map init
 // ─────────────────────────────────────────────────────────────────────────────
 const map = L.map('map', { center: CINCINNATI, zoom: 11, zoomControl: true })
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Overlay / iframe mode — hide UI chrome, listen for viewport sync
+// ─────────────────────────────────────────────────────────────────────────────
+if (window.self !== window.top) {
+  document.body.classList.add('overlay-mode')
+  window.addEventListener('message', (e) => {
+    if (e.data?.type === 'syncViewport') {
+      map.setView([e.data.lat, e.data.lng], e.data.zoom, { animate: false, duration: 0 })
+    }
+  })
+}
 
 const baseLayers = {
   'Street':    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', maxZoom: 19 }),
