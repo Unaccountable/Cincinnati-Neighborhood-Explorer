@@ -410,10 +410,28 @@ const map = L.map('map', { center: CINCINNATI, zoom: 11, zoomControl: true })
 // ─────────────────────────────────────────────────────────────────────────────
 if (window.self !== window.top) {
   document.body.classList.add('overlay-mode')
+
+  let _receivingSync = false
+
+  // Zillow → overlay: parent tells us where to pan
   window.addEventListener('message', (e) => {
     if (e.data?.type === 'syncViewport') {
+      _receivingSync = true
       map.setView([e.data.lat, e.data.lng], e.data.zoom, { animate: false, duration: 0 })
+      _receivingSync = false
     }
+  })
+
+  // Overlay → Zillow: user panned our map, tell parent to follow
+  map.on('moveend', () => {
+    if (_receivingSync) return
+    const c = map.getCenter()
+    window.parent.postMessage({
+      type: 'leafletMoved',
+      lat: c.lat,
+      lng: c.lng,
+      zoom: map.getZoom() - 1   // undo the +1 offset so Mapbox zoom matches
+    }, '*')
   })
 }
 

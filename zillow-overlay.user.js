@@ -161,12 +161,27 @@
     )
   }
 
+  let mapboxMap = null
+  let _receivingLeafletSync = false
+
+  // Overlay → Zillow: user panned the Leaflet map, move Zillow to match
+  window.addEventListener('message', (e) => {
+    if (e.data?.type === 'leafletMoved' && mapboxMap) {
+      _receivingLeafletSync = true
+      mapboxMap.jumpTo({ center: [e.data.lng, e.data.lat], zoom: e.data.zoom })
+      // Mapbox fires 'move' async; clear the flag after the event loop settles
+      setTimeout(() => { _receivingLeafletSync = false }, 100)
+    }
+  })
+
   function attachSync (mbMap) {
+    mapboxMap = mbMap
     const status = document.getElementById('cincy-status')
     status.textContent = 'Map synced ✓'
     status.style.color = '#3dbb3d'
 
-    const onMove = () => syncViewport(mbMap)
+    // Zillow → overlay (skip if we're the ones who caused the move)
+    const onMove = () => { if (!_receivingLeafletSync) syncViewport(mbMap) }
     mbMap.on('move', onMove)
     mbMap.on('zoomend', onMove)
     syncViewport(mbMap) // initial sync
