@@ -413,12 +413,16 @@ if (window.self !== window.top) {
 
   let _receivingSync = false
 
-  // Zillow → overlay: parent tells us where to pan
+  // Zillow → overlay: parent tells us where to pan or toggle a layer
   window.addEventListener('message', (e) => {
     if (e.data?.type === 'syncViewport') {
       _receivingSync = true
+      // Google Maps and Leaflet use the same zoom scale — no offset needed
       map.setView([e.data.lat, e.data.lng], e.data.zoom, { animate: false, duration: 0 })
       _receivingSync = false
+    }
+    if (e.data?.type === 'toggleLayer') {
+      toggleLayer(e.data.layerId)
     }
   })
 
@@ -430,7 +434,7 @@ if (window.self !== window.top) {
       type: 'leafletMoved',
       lat: c.lat,
       lng: c.lng,
-      zoom: map.getZoom() - 1   // undo the +1 offset so Mapbox zoom matches
+      zoom: map.getZoom()   // Google Maps and Leaflet use the same zoom scale
     }, '*')
   })
 }
