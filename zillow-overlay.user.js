@@ -82,7 +82,7 @@
     else document.addEventListener('DOMContentLoaded', fn)
   }
 
-  // instanceof scan — most reliable fallback once google.maps is available
+  // instanceof scan — works if the instance is a window global
   function findGoogleMapByInstanceOf () {
     const Map = window.google?.maps?.Map
     if (!Map) return null
@@ -92,19 +92,42 @@
     return null
   }
 
-  // Duck-type DOM fallback for .gm-style containers
+  // Prototype patch — most reliable method when the instance is in a closure.
+  // Wraps getCenter() on the prototype; Google Maps calls it during every render,
+  // so `this` will be the live map instance the next time the map moves or renders.
+  let _protoPatchApplied = false
+  function applyPrototypePatch (onFound) {
+    const Map = window.google?.maps?.Map
+    if (!Map || _protoPatchApplied) return
+    _protoPatchApplied = true
+    const orig = Map.prototype.getCenter
+    Map.prototype.getCenter = function (...args) {
+      // Restore immediately so we don't interfere with normal operation
+      Map.prototype.getCenter = orig
+      onFound(this)
+      return orig.apply(this, args)
+    }
+  }
+
+  // Duck-type DOM scan including non-enumerable properties
   function findGoogleMapByDOM () {
     const container = document.querySelector('.gm-style')
     if (!container) return null
     let el = container
     while (el && el !== document.documentElement) {
       try {
-        for (const k of Object.keys(el)) {
-          const v = el[k]
-          if (v && typeof v === 'object' &&
-              typeof v.getCenter  === 'function' &&
-              typeof v.setCenter  === 'function' &&
-              typeof v.getZoom    === 'function') return v
+        const keys = [
+          ...Object.keys(el),
+          ...Object.getOwnPropertyNames(el).filter(k => !Object.keys(el).includes(k))
+        ]
+        for (const k of keys) {
+          try {
+            const v = el[k]
+            if (v && typeof v === 'object' &&
+                typeof v.getCenter === 'function' &&
+                typeof v.setCenter === 'function' &&
+                typeof v.getZoom   === 'function') return v
+          } catch (_) {}
         }
       } catch (_) {}
       el = el.parentElement
@@ -291,15 +314,30 @@
       syncViewport(gMap) // initial sync
     }
 
-    // Poll: constructor intercept fires first, instanceof scan as fallback
+    // Poll for the map instance using all available methods
     let attempts = 0
     const poll = setInterval(() => {
       attempts++
+
+      // 1. Constructor intercept may have already set googleMap
+      // 2. instanceof scan (works if stored as window global)
+      // 3. DOM duck-type scan (includes non-enumerable props)
       const found = googleMap || findGoogleMapByInstanceOf() || findGoogleMapByDOM()
       if (found) {
         clearInterval(poll)
         attachSync(found)
-      } else if (attempts >= 60) {
+        return
+      }
+
+      // 4. Prototype patch — fires the next time ANY map method is called.
+      //    Apply once google.maps.Map is available; the map will call getCenter
+      //    on its own within milliseconds during normal rendering.
+      applyPrototypePatch((inst) => {
+        clearInterval(poll)
+        attachSync(inst)
+      })
+
+      if (attempts >= 60) {
         clearInterval(poll)
         const status = document.getElementById('cincy-status')
         status.textContent = 'Map not found — try reloading'
