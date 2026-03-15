@@ -427,6 +427,13 @@ if (window.self !== window.top) {
     if (e.data?.type === 'setInteractMode') {
       _interactMode = e.data.enabled
     }
+    if (e.data?.type === 'requestPosition') {
+      const c = map.getCenter()
+      window.parent.postMessage(
+        { type: 'overlayPosition', lat: c.lat, lng: c.lng, zoom: map.getZoom() },
+        '*'
+      )
+    }
   })
 
   // Overlay → Zillow: throttle with rAF, suppressed in interact mode

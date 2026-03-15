@@ -258,8 +258,9 @@
       interactMode = e.target.checked
       iframe.style.pointerEvents = e.target.checked ? 'all' : 'none'
       sendToIframe({ type: 'setInteractMode', enabled: e.target.checked })
-      // When exiting interact mode, snap overlay back to Zillow's current position
-      if (!e.target.checked && googleMap) syncViewport(googleMap)
+      // When exiting interact mode, ask overlay where it is and move Zillow there
+      // so the user's manual alignment is preserved
+      if (!e.target.checked) sendToIframe({ type: 'requestPosition' })
     })
 
     // ── postMessage helper — waits for iframe to be ready ────────────────────
@@ -281,13 +282,20 @@
       sendToIframe({ type: 'syncViewport', lat: c.lat(), lng: c.lng(), zoom: z })
     }
 
-    // Overlay → Zillow: user dragged the Leaflet map, move Zillow to match
     window.addEventListener('message', (e) => {
+      // Overlay dragged while bidirectional sync is on → move Zillow to follow
       if (e.data?.type === 'leafletMoved' && googleMap) {
         _receivingLeafletSync = true
         googleMap.setCenter({ lat: e.data.lat, lng: e.data.lng })
         googleMap.setZoom(e.data.zoom)
         setTimeout(() => { _receivingLeafletSync = false }, 150)
+      }
+      // Response to requestPosition — move Zillow to where the user dragged the overlay
+      if (e.data?.type === 'overlayPosition' && googleMap) {
+        _receivingLeafletSync = true
+        googleMap.setCenter({ lat: e.data.lat, lng: e.data.lng })
+        googleMap.setZoom(e.data.zoom)
+        setTimeout(() => { _receivingLeafletSync = false }, 200)
       }
     })
 
