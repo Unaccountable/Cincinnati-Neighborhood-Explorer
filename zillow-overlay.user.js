@@ -16,6 +16,7 @@
   let googleMap = null
   let _receivingLeafletSync = false
   let iframeReady = false
+  let interactMode = false
 
   // Layer config — mirrors LAYERS_CONFIG in map.html
   const LAYERS = [
@@ -251,10 +252,14 @@
     document.getElementById('cincy-opacity').addEventListener('input', (e) => {
       iframe.style.opacity = e.target.value / 100
     })
-    // Enable clicks: lets you drag/interact with the overlay to manually align maps.
-    // Uncheck to go back to clicking Zillow listings.
+    // Enable clicks: pauses map sync so you can drag the overlay to align it.
+    // Uncheck to resume sync and return to clicking Zillow listings.
     document.getElementById('cincy-interact').addEventListener('change', (e) => {
+      interactMode = e.target.checked
       iframe.style.pointerEvents = e.target.checked ? 'all' : 'none'
+      sendToIframe({ type: 'setInteractMode', enabled: e.target.checked })
+      // When exiting interact mode, snap overlay back to Zillow's current position
+      if (!e.target.checked && googleMap) syncViewport(googleMap)
     })
 
     // ── postMessage helper — waits for iframe to be ready ────────────────────
@@ -297,7 +302,7 @@
       // than event-based sync which fires after movement ends.
       let lastLat = null, lastLng = null, lastZoom = null
       function rafSync () {
-        if (!_receivingLeafletSync) {
+        if (!_receivingLeafletSync && !interactMode) {
           try {
             const c   = gMap.getCenter()
             const z   = gMap.getZoom()

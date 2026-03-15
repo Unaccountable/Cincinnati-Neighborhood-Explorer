@@ -412,24 +412,27 @@ if (window.self !== window.top) {
   document.body.classList.add('overlay-mode')
 
   let _receivingSync = false
+  let _interactMode = false
 
-  // Zillow → overlay: parent tells us where to pan or toggle a layer
+  // Zillow → overlay: pan, layer toggle, or interact mode change
   window.addEventListener('message', (e) => {
     if (e.data?.type === 'syncViewport') {
       _receivingSync = true
-      // Google Maps and Leaflet use the same zoom scale — no offset needed
       map.setView([e.data.lat, e.data.lng], e.data.zoom, { animate: false, duration: 0 })
       _receivingSync = false
     }
     if (e.data?.type === 'toggleLayer') {
       toggleLayer(e.data.layerId)
     }
+    if (e.data?.type === 'setInteractMode') {
+      _interactMode = e.data.enabled
+    }
   })
 
-  // Overlay → Zillow: throttle with rAF so we don't flood the parent
+  // Overlay → Zillow: throttle with rAF, suppressed in interact mode
   let _rafPending = false
   map.on('move', () => {
-    if (_receivingSync || _rafPending) return
+    if (_receivingSync || _rafPending || _interactMode) return
     _rafPending = true
     requestAnimationFrame(() => {
       _rafPending = false
